@@ -24,7 +24,7 @@ export default function PracticeProject({ project }: { project: Project }) {
           const code = inputs[cp.id] || '';
           if (!code.trim()) { newResults[cp.id] = { checkpointId: cp.id, status: 'pending', detail: 'No query written yet.' }; continue; }
           try {
-            const actual = await executeSql(project.dataset.content, code);
+            const actual = await executeSql(project.dataset.content, code, project.dataset.name);
             const match = compareSqlResult(actual, cp.expected);
             newResults[cp.id] = { checkpointId: cp.id, status: match ? 'pass' : 'fail', detail: match ? '' : formatDiff(actual, cp.expected) };
           } catch (e: any) { newResults[cp.id] = { checkpointId: cp.id, status: 'fail', detail: e.message }; }

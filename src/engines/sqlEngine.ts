@@ -5,6 +5,7 @@ declare global {
 let sqlPromise: Promise<any> | null = null;
 let sqlDb: any = null;
 let currentDataset: string | null = null;
+let currentTable: string = 'data';
 
 async function loadSqlJs(): Promise<any> {
   if (sqlPromise) return sqlPromise;
@@ -33,11 +34,12 @@ function csvToSql(csv: string, table: string, db: any) {
   }
 }
 
-export async function getSqlDb(datasetContent: string): Promise<any> {
-  if (sqlDb && currentDataset === datasetContent) return sqlDb;
+export async function getSqlDb(datasetContent: string, tableName: string = 'data'): Promise<any> {
+  if (sqlDb && currentDataset === datasetContent && currentTable === tableName) return sqlDb;
   const SQL = await loadSqlJs();
   sqlDb = new SQL.Database();
   currentDataset = datasetContent;
+  currentTable = tableName;
   try {
     const parsed = JSON.parse(datasetContent);
     if (typeof parsed === 'object' && !Array.isArray(parsed)) {
@@ -45,12 +47,12 @@ export async function getSqlDb(datasetContent: string): Promise<any> {
       return sqlDb;
     }
   } catch { /* single CSV */ }
-  csvToSql(datasetContent, 'data', sqlDb);
+  csvToSql(datasetContent, tableName, sqlDb);
   return sqlDb;
 }
 
-export async function executeSql(datasetContent: string, query: string) {
-  const db = await getSqlDb(datasetContent);
+export async function executeSql(datasetContent: string, query: string, tableName: string = 'data') {
+  const db = await getSqlDb(datasetContent, tableName);
   try {
     const r = db.exec(query);
     if (!r.length) return { columns: [] as string[], values: [] as any[][] };
