@@ -1,0 +1,13 @@
+order_id,customer_id,product,category,quantity,unit_price,total,status,order_date
+1,101,Laptop Backpack,Accessories,2,1500,3000,shipped,2024-01-15
+2,102,Wireless Mouse,Accessories,1,800,800,pending,2024-01-16
+3,103,Mechanical Keyboard,Accessories,1,2500,2500,shipped,2024-01-17
+4,101,USB-C Hub,Accessories,3,1200,3600,shipped,2024-01-18
+5,104,Laptop Stand,Furniture,1,1800,1800,delivered,2024-01-19
+6,105,Monitor 27inch,Electronics,1,15000,15000,pending,2024-01-20
+7,102,Webcam,Electronics,2,2200,4400,shipped,2024-01-21
+8,106,Desk Lamp,Furniture,2,900,1800,delivered,2024-01-22
+9,103,Headphones,Electronics,1,3500,3500,shipped,2024-01-23
+10,107,Mouse Pad,Accessories,5,300,1500,delivered,2024-01-24
+11,104,Laptop Sleeve,Accessories,2,700,1400,pending,2024-01-25
+12,108,External SSD 1TB,Electronics,1,6500,6500,shipped,2024-01-26

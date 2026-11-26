@@ -1,0 +1,11 @@
+emp_id,name,department,salary,join_date,city,performance_rating
+1,Aarav Sharma,Engineering,85000,2022-03-01,Mumbai,4.5
+2,Priya Patel,Sales,65000,2021-07-15,Delhi,4.2
+3,Rohan Verma,Engineering,92000,2020-01-10,Bangalore,4.8
+4,Ananya Singh,Marketing,58000,2023-02-20,Mumbai,3.9
+5,Vikram Reddy,Engineering,78000,2022-11-05,Hyderabad,4.1
+6,Kavya Nair,Sales,62000,2021-09-12,Delhi,4.5
+7,Arjun Gupta,Marketing,60000,2023-05-18,Bangalore,3.7
+8,Diya Mehta,HR,55000,2020-08-22,Mumbai,4.3
+9,Karan Joshi,Engineering,88000,2019-04-01,Hyderabad,4.6
+10,Sneha Rao,Sales,70000,2022-06-30,Bangalore,4.4
