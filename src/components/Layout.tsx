@@ -1,5 +1,5 @@
-import { ReactNode, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import MentorWidget from './MentorWidget';
 
 const navItems = [
@@ -13,7 +13,7 @@ const navItems = [
   { path: '/settings', label: 'Settings', icon: '⚙️' },
 ];
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   return (
@@ -43,7 +43,9 @@ export default function Layout({ children }: { children: ReactNode }) {
           <Link to="/" className="flex items-center gap-2"><span className="text-xl">🛤️</span><span className="font-bold text-accent">DataPath</span></Link>
           <div className="w-6" />
         </header>
-        <main className="p-4 lg:p-8 max-w-5xl mx-auto">{children}</main>
+        <main className="p-4 lg:p-8 max-w-5xl mx-auto">
+          <Outlet />
+        </main>
       </div>
       <MentorWidget />
     </div>
