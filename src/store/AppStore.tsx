@@ -60,17 +60,13 @@ function saveState(state: AppState) {
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
-    case 'SET_DIAGNOSTIC':
-      return {
-        ...state,
-        diagnosticCompleted: true,
-        diagnosticResults: action.payload.results,
-        moduleStates: Object.fromEntries(
-          Object.entries(action.payload.results).map(([id, score]) => [
-            Number(id), { manualKnown: (score as number) >= 70, topicsVisited: [] },
-          ])
-        ),
-      };
+    case 'SET_DIAGNOSTIC': {
+      const newModuleStates: Record<number, { manualKnown: boolean; topicsVisited: string[] }> = {};
+      for (const [id, score] of Object.entries(action.payload.results)) {
+        newModuleStates[Number(id)] = { manualKnown: (score as number) >= 70, topicsVisited: [] };
+      }
+      return { ...state, diagnosticCompleted: true, diagnosticResults: action.payload.results, moduleStates: newModuleStates };
+    }
     case 'TOGGLE_MANUAL_KNOWN': {
       const cur = state.moduleStates[action.payload.moduleId] || { manualKnown: false, topicsVisited: [] };
       return {
