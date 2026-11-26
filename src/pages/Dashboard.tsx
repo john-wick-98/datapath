@@ -9,9 +9,10 @@ export default function Dashboard() {
   const overallMastery = Math.round(moduleMasteries.reduce((a, m) => a + m.mastery, 0) / moduleMasteries.length);
   const weakTopics = getWeakTopics(state, allTopics);
   const streak = getStreak(state);
-  const recommendedModule = weakTopics.length > 0
+  const recommendedModule = (weakTopics.length > 0
     ? modules.find(m => m.id === weakTopics[0].moduleId)
-    : modules.find(m => { const ms = state.moduleStates[m.id]; return !ms || m.topics.some(t => !ms.topicsVisited.includes(t.id)); }) || modules[0];
+    : modules.find(m => { const ms = state.moduleStates[m.id]; return !ms || m.topics.some(t => !ms.topicsVisited.includes(t.id)); })
+  ) || modules[0];
   const nextMockTest = state.mockTestsUnlocked > state.mockTestHistory.length
     ? `Mock Test #${state.mockTestsUnlocked} unlocked!`
     : `${10 - (state.daysActive % 10 || 10)} active days to next mock test`;
@@ -26,8 +27,8 @@ export default function Dashboard() {
       </div>
       <div className="card bg-accent/5 border-accent/20">
         <div className="flex items-center justify-between">
-          <div><p className="text-xs text-accent font-medium uppercase tracking-wide mb-1">Today's Focus</p><h3 className="font-bold">{recommendedModule?.title}</h3><p className="text-sm text-gray-600 mt-1">{recommendedModule?.description}</p></div>
-          <Link to={`/modules/${recommendedModule?.id}`} className="btn btn-primary text-sm whitespace-nowrap">Start →</Link>
+          <div><p className="text-xs text-accent font-medium uppercase tracking-wide mb-1">Today's Focus</p><h3 className="font-bold">{recommendedModule.title}</h3><p className="text-sm text-gray-600 mt-1">{recommendedModule.description}</p></div>
+          <Link to={`/modules/${recommendedModule.id}`} className="btn btn-primary text-sm whitespace-nowrap">Start →</Link>
         </div>
       </div>
       <div className="card flex items-center justify-between">

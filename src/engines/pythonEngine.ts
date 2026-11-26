@@ -24,7 +24,8 @@ export async function loadPyodide(): Promise<any> {
 
 export async function executePython(csvContent: string, code: string): Promise<any> {
   const py = await loadPyodide();
-  const escaped = csvContent.replace(/'''+/g, "'''");
+  // Escape triple single quotes to avoid breaking the Python string literal
+  const escaped = csvContent.replace(/'''/g, "\\'\\'\\'");
   await py.runPythonAsync(`import pandas as pd, io\ndf = pd.read_csv(io.StringIO('''${escaped}'''))`);
   try {
     const result = await py.runPythonAsync(code);

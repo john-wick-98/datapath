@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../store/AppStore';
 import { modules } from '../data/modules';
 import { projects } from '../data/projects';
+import { Topic, Module, PracticeProject, Checkpoint } from '../types';
+
+type TestQuestion = { topic: Topic; module: Module; project: PracticeProject; checkpoint: Checkpoint };
 
 export default function MockTests() {
   const { state, dispatch } = useApp();
@@ -10,10 +13,15 @@ export default function MockTests() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [results, setResults] = useState<{ overallScore: number; perModuleBreakdown: Record<number, number> } | null>(null);
 
-  const testQuestions = modules.flatMap(m =>
+  // Only include questions with gradeable expected values (number or string)
+  // SQL questions (object expected) and AI-review (no expected) are excluded
+  const testQuestions: TestQuestion[] = modules.flatMap(m =>
     m.topics.flatMap(t => {
       const p = projects[t.projectId];
-      return p ? [{ topic: t, module: m, project: p, checkpoint: p.checkpoints[0] }] : [];
+      if (!p) return [];
+      return p.checkpoints
+        .filter(cp => typeof cp.expected === 'number' || typeof cp.expected === 'string')
+        .map(cp => ({ topic: t, module: m, project: p, checkpoint: cp }));
     })
   ).slice(0, 15);
 
@@ -28,22 +36,24 @@ export default function MockTests() {
   const handleSubmit = () => {
     const mb: Record<number, { correct: number; total: number }> = {};
     testQuestions.forEach(q => {
-      if (!mb[q.module.id]) mb[q.module.id] = { correct: 0, total: 0 };
-      mb[q.module.id].total++;
+      const mid = q.module.id;
+      if (!mb[mid]) mb[mid] = { correct: 0, total: 0 };
+      mb[mid].total++;
       const ans = answers[q.checkpoint.id];
-      if (ans && q.checkpoint.expected !== undefined) {
-        if (typeof q.checkpoint.expected === 'number') {
-          if (Math.abs(parseFloat(ans) - q.checkpoint.expected) < (q.checkpoint.tolerance || 0.01)) mb[q.module.id].correct++;
-        } else if (typeof q.checkpoint.expected === 'string') {
-          if (ans.trim() === q.checkpoint.expected) mb[q.module.id].correct++;
-        }
+      if (!ans) return;
+      const exp = q.checkpoint.expected;
+      if (typeof exp === 'number') {
+        const tol = q.checkpoint.tolerance || 0.01;
+        if (Math.abs(parseFloat(ans) - exp) <= tol) mb[mid].correct++;
+      } else if (typeof exp === 'string') {
+        if (ans.trim() === exp) mb[mid].correct++;
       }
     });
     const total = Object.values(mb).reduce((a, b) => a + b.total, 0);
     const correct = Object.values(mb).reduce((a, b) => a + b.correct, 0);
-    const overallScore = Math.round((correct / total) * 100);
+    const overallScore = total > 0 ? Math.round((correct / total) * 100) : 0;
     const perModuleBreakdown: Record<number, number> = {};
-    Object.entries(mb).forEach(([id, { correct: c, total: t }]) => { perModuleBreakdown[Number(id)] = Math.round((c / t) * 100); });
+    Object.entries(mb).forEach(([id, { correct: c, total: t }]) => { perModuleBreakdown[Number(id)] = t > 0 ? Math.round((c / t) * 100) : 0; });
     const result = { date: new Date().toISOString(), overallScore, perModuleBreakdown, duration: 3000 - timeLeft };
     dispatch({ type: 'RECORD_MOCK_TEST', payload: { result } });
     setResults({ overallScore, perModuleBreakdown }); setActive(false);
@@ -57,6 +67,7 @@ export default function MockTests() {
         <span className="font-bold text-sm">Mock Test #{state.mockTestsUnlocked}</span>
         <span className={`font-mono text-lg ${timeLeft < 300 ? 'text-red-500' : ''}`}>⏱ {fmt(timeLeft)}</span>
       </div>
+      <p className="text-xs text-gray-400">Answer each question based on the dataset. Enter only the final answer value.</p>
       <div className="space-y-4">
         {testQuestions.map((q, i) => (
           <div key={i} className="card">
@@ -64,13 +75,13 @@ export default function MockTests() {
             {q.project.dataset.content && (
               <details className="mb-2">
                 <summary className="text-xs text-gray-400 cursor-pointer">View dataset</summary>
-                <pre className="text-xs bg-gray-50 p-2 rounded mt-1 overflow-x-auto">{q.project.dataset.content.slice(0, 300)}...</pre>
+                <pre className="text-xs bg-gray-50 p-2 rounded mt-1 overflow-x-auto max-h-40 overflow-y-auto">{q.project.dataset.content}</pre>
               </details>
             )}
             <input
               value={answers[q.checkpoint.id] || ''}
               onChange={e => setAnswers({ ...answers, [q.checkpoint.id]: e.target.value })}
-              placeholder="Enter your answer..."
+              placeholder={typeof q.checkpoint.expected === 'number' ? 'Enter numeric answer...' : 'Enter text answer...'}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:border-accent"
             />
           </div>
